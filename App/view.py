@@ -37,9 +37,13 @@ operación solicitada
 def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- ")
+    print("2- Cantidad componentes conectados")
+    print("3- Landing Points de interconexión")
+    print("4- Ruta mínima entre dos países")
+    print("5- Identificar estructura crítica")
+    print("6- Impacto de un Landing Point dañado")
 
-catalog = None
+analyzer = None
 
 """
 Menu principal
@@ -49,8 +53,23 @@ while True:
     inputs = input('Seleccione una opción para continuar\n')
     if int(inputs[0]) == 1:
         print("Cargando información de los archivos ....")
-
+        analyzer=controller.init_analyzer()
+        controller.load_data(analyzer)
+        numedges = controller.totalConnections(analyzer)
+        numvertex = controller.totalStops(analyzer)
+        numcountries=controller.total_countries(analyzer)
+        numlanding=controller.total_landing_points(analyzer)
+        print('Numero de vertices: ' + str(numvertex))
+        print('Numero de arcos: ' + str(numedges))
+        print('Numero de paises: ',numcountries)
+        print('Numero de landing_points: ',numlanding)
     elif int(inputs[0]) == 2:
+        pass
+    elif int(inputs[0]) == 3:
+        pass
+    elif int(inputs[0]) == 4:
+        pass
+    elif int(inputs[0]) == 5:
         pass
 
     else:
