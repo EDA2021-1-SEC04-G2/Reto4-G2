@@ -94,3 +94,14 @@ def total_countries(analyzer):
 
 def total_landing_points(analyzer):
     return model.total_landing_points(analyzer)
+
+
+def connectedComponents(analyzer):
+    """
+    Numero de componentes fuertemente conectados
+    """
+
+    ans = model.connectedComponents(analyzer)
+
+
+    return ans

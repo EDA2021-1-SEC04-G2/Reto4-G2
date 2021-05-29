@@ -43,6 +43,12 @@ def printMenu():
     print("5- Identificar estructura crítica")
     print("6- Impacto de un Landing Point dañado")
 
+
+
+    
+ 
+
+
 analyzer = None
 
 """
@@ -64,7 +70,9 @@ while True:
         print('Numero de paises: ',numcountries)
         print('Numero de landing_points: ',numlanding)
     elif int(inputs[0]) == 2:
-        pass
+        ans=controller.connectedComponents(analyzer)
+        print('El número de componentes conectados es: ' +
+          str(ans))
     elif int(inputs[0]) == 3:
         pass
     elif int(inputs[0]) == 4:

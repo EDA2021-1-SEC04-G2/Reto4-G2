@@ -181,6 +181,13 @@ def addRouteConnections(analyzer):
 # Funciones de consulta
 
 # Funciones utilizadas para comparar elementos dentro de una lista
+def connectedComponents(analyzer):
+    """
+    Calcula los componentes conectados del grafo
+    Se utiliza el algoritmo de Kosaraju
+    """
+    analyzer['components'] = scc.KosarajuSCC(analyzer['connections'])
+    return scc.connectedComponents(analyzer['components'])
 
 # Funciones de ordenamiento
 def formatVertex(connection, landing_point):
