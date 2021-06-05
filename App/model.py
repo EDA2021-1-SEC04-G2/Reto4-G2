@@ -32,6 +32,7 @@ from DISClib.ADT import list as lt
 from DISClib.Algorithms.Graphs import scc
 from DISClib.Algorithms.Graphs import dijsktra as djk
 from DISClib.Utils import error as error
+import haversine as hs
 assert config
 
 """
