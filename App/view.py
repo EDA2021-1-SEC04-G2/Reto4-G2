@@ -70,9 +70,12 @@ while True:
         print('Numero de paises: ',numcountries)
         print('Numero de landing_points: ',numlanding)
     elif int(inputs[0]) == 2:
-        ans=controller.connectedComponents(analyzer)
+        verta=input('vertice a')
+        vertb=input('vertice b')
+        ans=controller.connectedComponents(analyzer,verta,vertb)
         print('El número de componentes conectados es: ' +
-          str(ans))
+          str(ans[0]))
+        print('Los dos vertices están conectados',ans[1])
     elif int(inputs[0]) == 3:
         pass
     elif int(inputs[0]) == 4:

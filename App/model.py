@@ -58,10 +58,12 @@ def newAnalyzer():
                     'paths': None,
                     'countries':None
                     }
-
+        #informacion de los cables de cada landing point, los valores son listas de cables
         analyzer['landing_points'] = m.newMap(numelements=1280,
                                      maptype='PROBING')
-
+        #diccionarios con informacion de cada landing point, los valores son diccionarios con caracteristicas
+        analyzer['landing_points2'] = m.newMap(numelements=1280,
+                                     maptype='PROBING')
         analyzer['connections'] = gr.newGraph(datastructure='ADJ_LIST',
                                               directed=False,
                                               size=1280,
@@ -78,7 +80,7 @@ def add_country(analyzer,country):
     m.put(analyzer['countries'],country['CountryName'],country)
 
 def add_landing_point(analyzer,landing_point):
-    m.put(analyzer['landing_points'],landing_point['landing_point_id'],landing_point)
+    m.put(analyzer['landing_points2'],landing_point['name'],landing_point)
 
 def addStopConnection(analyzer, connection):
     """
@@ -104,18 +106,24 @@ def addStopConnection(analyzer, connection):
         addStop(analyzer, destination)
         addConnection(analyzer, origin, destination, weight)
         addRouteStop(analyzer, connection)
+        addCapital(connection,analyzer)
         return analyzer
     except Exception as exp:
         error.reraise(exp, 'model:addStopConnection')
 
-
-def addStop(analyzer, landing_point):
+def addCapital(connection,analyzer):
+    landing=connection['origin']
+    landing_point=m.get(analyzer['landing_points2'],landing)['value']
+    country=landing_point['name'].split(', ')[1]
+    capital=m.get(analyzer['countries'],country)['value']['CapitalName']
+    
+def addStop(analyzer, vertex):
     """
     Adiciona una estación como un vertice del grafo
     """
     try:
-        if not gr.containsVertex(analyzer['connections'], landing_point):
-            gr.insertVertex(analyzer['connections'], landing_point)
+        if not gr.containsVertex(analyzer['connections'], vertex):
+            gr.insertVertex(analyzer['connections'], vertex)
         return analyzer
     except Exception as exp:
         error.reraise(exp, 'model:addstop')
@@ -130,9 +138,7 @@ def addConnection(analyzer, origin, destination, weight):
     return analyzer
 
 def addRouteStop(analyzer, connection):
-    """
-    Agrega a una estacion, una ruta que es servida en ese paradero
-    """
+    
     entry = m.get(analyzer['landing_points'], connection['origin'])
     if entry is None:
         lstcables = lt.newList(cmpfunction=compare_cables_id)
@@ -181,13 +187,15 @@ def addRouteConnections(analyzer):
 # Funciones de consulta
 
 # Funciones utilizadas para comparar elementos dentro de una lista
-def connectedComponents(analyzer):
+def connectedComponents(analyzer,verta,vertb):
+    #req 1
     """
     Calcula los componentes conectados del grafo
     Se utiliza el algoritmo de Kosaraju
     """
     analyzer['components'] = scc.KosarajuSCC(analyzer['connections'])
-    return scc.connectedComponents(analyzer['components'])
+    connected=scc.stronglyConnected(analyzer['components'],verta,vertb)
+    return scc.connectedComponents(analyzer['components']),connected
 
 # Funciones de ordenamiento
 def formatVertex(connection, landing_point):

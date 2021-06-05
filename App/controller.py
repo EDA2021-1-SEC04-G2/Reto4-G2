@@ -32,9 +32,9 @@ def init_analyzer():
 
 # Funciones para la carga de datos
 def load_data(analyzer):
+    load_countries(analyzer)
+    load_countries(analyzer)
     load_connections(analyzer)
-    load_countries(analyzer)
-    load_countries(analyzer)
 
 def load_connections(analyzer):
     """
@@ -96,12 +96,12 @@ def total_landing_points(analyzer):
     return model.total_landing_points(analyzer)
 
 
-def connectedComponents(analyzer):
+def connectedComponents(analyzer,verta,vertb):
     """
     Numero de componentes fuertemente conectados
     """
 
-    ans = model.connectedComponents(analyzer)
+    ans = model.connectedComponents(analyzer,verta,vertb)
 
 
     return ans
