@@ -60,10 +60,10 @@ def newAnalyzer():
                     'countries':None
                     }
         #informacion de los cables de cada landing point, los valores son listas de cables
-        analyzer['landing_points'] = m.newMap(numelements=1280,
+        analyzer['landing_points_cables'] = m.newMap(numelements=1280,
                                      maptype='PROBING')
         #diccionarios con informacion de cada landing point, los valores son diccionarios con caracteristicas
-        analyzer['landing_points2'] = m.newMap(numelements=1280,
+        analyzer['landing_points_info'] = m.newMap(numelements=1280,
                                      maptype='PROBING')
         analyzer['connections'] = gr.newGraph(datastructure='ADJ_LIST',
                                               directed=False,
@@ -81,9 +81,9 @@ def add_country(analyzer,country):
     m.put(analyzer['countries'],country['CountryName'],country)
 
 def add_landing_point(analyzer,landing_point):
-    m.put(analyzer['landing_points2'],landing_point['name'],landing_point)
+    m.put(analyzer['landing_points_info'],landing_point['landing_point_id'],landing_point)
 
-def addStopConnection(analyzer, connection):
+def add_connection(analyzer, connection):
     """
     Adiciona las estaciones al grafo como vertices y arcos entre las
     estaciones adyacentes.
@@ -96,29 +96,41 @@ def addStopConnection(analyzer, connection):
     Si la estacion sirve otra ruta, se tiene: 75009-101
     """
     try:
-        origin = formatVertex(connection, connection['origin'])
-        destination = formatVertex(connection, connection['destination'])
+        origin = format_vertex(connection, connection['origin'])
+        destination = format_vertex(connection, connection['destination'])
         weight=0
         if connection['cable_length']!='n.a.':
             cable_length=float(connection['cable_length'][:-3].replace(',','')) 
             weight=cable_length
         band_with=connection['capacityTBPS']
-        addStop(analyzer, origin)
-        addStop(analyzer, destination)
-        addConnection(analyzer, origin, destination, weight)
-        addRouteStop(analyzer, connection)
-        addCapital(connection,analyzer)
+        add_vertex(analyzer, origin)
+        add_vertex(analyzer, destination)
+        add_edge(analyzer, origin, destination, weight)
+        add_landing_point_cable(analyzer, connection)
+        add_capital(connection,analyzer)
         return analyzer
     except Exception as exp:
-        error.reraise(exp, 'model:addStopConnection')
+        error.reraise(exp, 'model:add_connection')
 
-def addCapital(connection,analyzer):
+def add_capital(analyzer,connection):
     landing=connection['origin']
-    landing_point=m.get(analyzer['landing_points2'],landing)['value']
-    country=landing_point['name'].split(', ')[1]
-    capital=m.get(analyzer['countries'],country)['value']['CapitalName']
+    landing_point=m.get(analyzer['landing_points_info'],landing)['value']
+    country=landing_point['name'].split(', ')[-1]
+    capital=m.get(analyzer['countries'],country)['value']
+    capital_name=capital['CapitalName']
+    latitude_origin=float(landing_point['latitude'])
+    longitude_origin=float(landing_point['longitude'])
+    origin_coo=(latitude_origin,longitude_origin)
+    latitude_capital=float(capital['CapitalLatitude'])
+    longitude_capital=float(capital['CapitalLongitude'])
+    capital_coo=(latitude_capital,longitude_capital)
+    distance=hs.haversine(origin_coo,capital_coo)
+    capital_vertex=format_vertex(connection,capital_name)
+    add_vertex(analyzer,capital_vertex)  
+
+
     
-def addStop(analyzer, vertex):
+def add_vertex(analyzer, vertex):
     """
     Adiciona una estación como un vertice del grafo
     """
@@ -127,9 +139,9 @@ def addStop(analyzer, vertex):
             gr.insertVertex(analyzer['connections'], vertex)
         return analyzer
     except Exception as exp:
-        error.reraise(exp, 'model:addstop')
+        error.reraise(exp, 'model:add_vertex')
 
-def addConnection(analyzer, origin, destination, weight):
+def add_edge(analyzer, origin, destination, weight):
     """
     Adiciona un arco entre dos estaciones
     """
@@ -138,13 +150,13 @@ def addConnection(analyzer, origin, destination, weight):
         gr.addEdge(analyzer['connections'], origin, destination, weight)
     return analyzer
 
-def addRouteStop(analyzer, connection):
+def add_landing_point_cable(analyzer, connection):
     
-    entry = m.get(analyzer['landing_points'], connection['origin'])
+    entry = m.get(analyzer['landing_points_cables'], connection['origin'])
     if entry is None:
         lstcables = lt.newList(cmpfunction=compare_cables_id)
         lt.addLast(lstcables, connection['cable_id'])
-        m.put(analyzer['landing_points'], connection['origin'], lstcables)
+        m.put(analyzer['landing_points_cables'], connection['origin'], lstcables)
     else:
         lstcables = entry['value']
         info = connection['cable_id']
@@ -153,11 +165,11 @@ def addRouteStop(analyzer, connection):
 
     #como no es dirigido hay que agregar ambos vertices
 
-    entry = m.get(analyzer['landing_points'], connection['destination'])
+    entry = m.get(analyzer['landing_points_cables'], connection['destination'])
     if entry is None:
         lstcables = lt.newList(cmpfunction=compare_cables_id)
         lt.addLast(lstcables, connection['cable_id'])
-        m.put(analyzer['landing_points'], connection['destination'], lstcables)
+        m.put(analyzer['landing_points_cables'], connection['destination'], lstcables)
     else:
         lstcables = entry['value']
         info = connection['cable_id']
@@ -165,22 +177,22 @@ def addRouteStop(analyzer, connection):
             lt.addLast(lstcables, info)
     return analyzer
 
-def addRouteConnections(analyzer):
+def add_landing_points_connections(analyzer):
     """
     Por cada vertice (cada estacion) se recorre la lista
     de rutas servidas en dicha estación y se crean
     arcos entre ellas para representar el cambio de ruta
     que se puede realizar en una estación.
     """
-    lstcon = m.keySet(analyzer['landing_points'])
+    lstcon = m.keySet(analyzer['landing_points_cables'])
     for key in lt.iterator(lstcon):
-        lstcables = m.get(analyzer['landing_points'], key)['value']
+        lstcables = m.get(analyzer['landing_points_cables'], key)['value']
         prevcable = None
         for cable in lt.iterator(lstcables):
             cable = key + '-' + cable
             if prevcable is not None:
                 weight=0.1
-                addConnection(analyzer, prevcable, cable, weight)
+                add_edge(analyzer, prevcable, cable, weight)
             prevcable = cable
 
 # Funciones para creacion de datos
@@ -188,7 +200,7 @@ def addRouteConnections(analyzer):
 # Funciones de consulta
 
 # Funciones utilizadas para comparar elementos dentro de una lista
-def connectedComponents(analyzer,verta,vertb):
+def connected_components(analyzer,verta,vertb):
     #req 1
     """
     Calcula los componentes conectados del grafo
@@ -199,7 +211,7 @@ def connectedComponents(analyzer,verta,vertb):
     return scc.connectedComponents(analyzer['components']),connected
 
 # Funciones de ordenamiento
-def formatVertex(connection, landing_point):
+def format_vertex(connection, landing_point):
     """
     Se formatea el nombrer del vertice con el id de la estación
     seguido de la ruta.
@@ -231,14 +243,14 @@ def compare_vertices(stop, keyvaluestop):
     else:
         return -1
 
-def totalStops(analyzer):
+def total_vertices(analyzer):
     """
     Retorna el total de estaciones (vertices) del grafo
     """
     return gr.numVertices(analyzer['connections'])
 
 
-def totalConnections(analyzer):
+def total_edges(analyzer):
     """
     Retorna el total arcos del grafo
     """
@@ -248,4 +260,4 @@ def total_countries(analyzer):
     return m.size(analyzer['countries'])
 
 def total_landing_points(analyzer):
-    return m.size(analyzer['landing_points'])
+    return m.size(analyzer['landing_points_cables'])

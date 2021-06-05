@@ -61,8 +61,8 @@ while True:
         print("Cargando información de los archivos ....")
         analyzer=controller.init_analyzer()
         controller.load_data(analyzer)
-        numedges = controller.totalConnections(analyzer)
-        numvertex = controller.totalStops(analyzer)
+        numedges = controller.total_edges(analyzer)
+        numvertex = controller.total_vertices(analyzer)
         numcountries=controller.total_countries(analyzer)
         numlanding=controller.total_landing_points(analyzer)
         print('Numero de vertices: ' + str(numvertex))
@@ -72,7 +72,7 @@ while True:
     elif int(inputs[0]) == 2:
         verta=input('vertice a')
         vertb=input('vertice b')
-        ans=controller.connectedComponents(analyzer,verta,vertb)
+        ans=controller.connected_components(analyzer,verta,vertb)
         print('El número de componentes conectados es: ' +
           str(ans[0]))
         print('Los dos vertices están conectados',ans[1])

@@ -33,7 +33,7 @@ def init_analyzer():
 # Funciones para la carga de datos
 def load_data(analyzer):
     load_countries(analyzer)
-    load_countries(analyzer)
+    load_landing_points(analyzer)
     load_connections(analyzer)
 
 def load_connections(analyzer):
@@ -48,8 +48,8 @@ def load_connections(analyzer):
     eventsfile = cf.data_dir + 'Data/connections.csv'
     input_file = csv.DictReader(open(eventsfile, encoding='utf-8-sig'))
     for connection in input_file:
-        model.addStopConnection(analyzer, connection)
-    model.addRouteConnections(analyzer)
+        model.add_connection(analyzer, connection)
+    model.add_landing_points_connections(analyzer)
     return analyzer
 
 def load_countries(analyzer):
@@ -77,18 +77,19 @@ El controlador se encarga de mediar entre la vista y el modelo.
 # Funciones de ordenamiento
 
 # Funciones de consulta sobre el catálogo
-def totalStops(analyzer):
+def total_vertices(analyzer):
     """
     Total de paradas de autobus
     """
-    return model.totalStops(analyzer)
+    return model.total_vertices(analyzer)
 
 
-def totalConnections(analyzer):
+def total_edges(analyzer):
     """
     Total de enlaces entre las paradas
     """
-    return model.totalConnections(analyzer)
+    return model.total_edges(analyzer)
+
 def total_countries(analyzer):
     return model.total_countries(analyzer)
 
@@ -96,12 +97,12 @@ def total_landing_points(analyzer):
     return model.total_landing_points(analyzer)
 
 
-def connectedComponents(analyzer,verta,vertb):
+def connected_components(analyzer,verta,vertb):
     """
     Numero de componentes fuertemente conectados
     """
 
-    ans = model.connectedComponents(analyzer,verta,vertb)
+    ans = model.connected_components(analyzer,verta,vertb)
 
 
     return ans
