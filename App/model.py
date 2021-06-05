@@ -39,7 +39,6 @@ assert config
 Se define la estructura de un catálogo de videos. El catálogo tendrá dos listas, una para los videos, otra para las categorias de
 los mismos.
 """
-
 # Construccion de modelos
 
 def newAnalyzer():
@@ -106,8 +105,9 @@ def add_connection(analyzer, connection):
         add_vertex(analyzer, origin)
         add_vertex(analyzer, destination)
         add_edge(analyzer, origin, destination, weight)
-        add_landing_point_cable(analyzer, connection)
-        add_capital(connection,analyzer)
+        add_landing_point_cable(analyzer, connection['origin'], connection['cable_id'])
+        add_landing_point_cable(analyzer, connection['destination'], connection['cable_id'])
+        add_capital(analyzer, connection)
         return analyzer
     except Exception as exp:
         error.reraise(exp, 'model:add_connection')
@@ -126,7 +126,8 @@ def add_capital(analyzer,connection):
     capital_coo=(latitude_capital,longitude_capital)
     distance=hs.haversine(origin_coo,capital_coo)
     capital_vertex=format_vertex(connection,capital_name)
-    add_vertex(analyzer,capital_vertex)  
+    add_vertex(analyzer,capital_vertex)
+    
 
 
     
@@ -150,31 +151,17 @@ def add_edge(analyzer, origin, destination, weight):
         gr.addEdge(analyzer['connections'], origin, destination, weight)
     return analyzer
 
-def add_landing_point_cable(analyzer, connection):
+def add_landing_point_cable(analyzer, landing_point, cable_id):
     
-    entry = m.get(analyzer['landing_points_cables'], connection['origin'])
+    entry = m.get(analyzer['landing_points_cables'], landing_point)
     if entry is None:
         lstcables = lt.newList(cmpfunction=compare_cables_id)
-        lt.addLast(lstcables, connection['cable_id'])
-        m.put(analyzer['landing_points_cables'], connection['origin'], lstcables)
+        lt.addLast(lstcables, cable_id)
+        m.put(analyzer['landing_points_cables'], landing_point, lstcables)
     else:
         lstcables = entry['value']
-        info = connection['cable_id']
-        if not lt.isPresent(lstcables, info):
-            lt.addLast(lstcables, info)
-
-    #como no es dirigido hay que agregar ambos vertices
-
-    entry = m.get(analyzer['landing_points_cables'], connection['destination'])
-    if entry is None:
-        lstcables = lt.newList(cmpfunction=compare_cables_id)
-        lt.addLast(lstcables, connection['cable_id'])
-        m.put(analyzer['landing_points_cables'], connection['destination'], lstcables)
-    else:
-        lstcables = entry['value']
-        info = connection['cable_id']
-        if not lt.isPresent(lstcables, info):
-            lt.addLast(lstcables, info)
+        if not lt.isPresent(lstcables, cable_id):
+            lt.addLast(lstcables, cable_id)
     return analyzer
 
 def add_landing_points_connections(analyzer):
