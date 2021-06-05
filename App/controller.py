@@ -45,7 +45,7 @@ def load_connections(analyzer):
     addRouteConnection crea conexiones entre diferentes rutas
     servidas en una misma estación.
     """
-    eventsfile = cf.data_dir + 'Prep Data/connections.csv'
+    eventsfile = cf.data_dir + 'Data/connections.csv'
     input_file = csv.DictReader(open(eventsfile, encoding='utf-8-sig'))
     for connection in input_file:
         model.addStopConnection(analyzer, connection)
@@ -53,14 +53,14 @@ def load_connections(analyzer):
     return analyzer
 
 def load_countries(analyzer):
-    eventsfile = cf.data_dir + 'Prep Data/countries.csv'
+    eventsfile = cf.data_dir + 'Data/countries.csv'
     input_file = csv.DictReader(open(eventsfile, encoding='utf-8-sig'))
     for country in input_file:
         model.add_country(analyzer, country)
     return analyzer
 
 def load_landing_points(analyzer):
-    eventsfile = cf.data_dir + 'Prep Data/landing_points.csv'
+    eventsfile = cf.data_dir + 'Data/landing_points.csv'
     input_file = csv.DictReader(open(eventsfile, encoding='utf-8-sig'))
     for landing_point in input_file:
         model.add_landing_point(analyzer, landing_point)
