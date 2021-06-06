@@ -63,7 +63,8 @@ def newAnalyzer():
                     'components': None,
                     'paths': None,
                     'countries':None,
-                    'MST':None
+                    'MST':None,
+                    'cables':None
                     }
         #informacion de los cables de cada landing point, los valores son listas de cables
         analyzer['landing_points_cables'] = m.newMap(numelements=1280,
@@ -77,6 +78,7 @@ def newAnalyzer():
                                               comparefunction=compare_vertices)
         analyzer['countries'] = m.newMap(numelements=1280,
                                      maptype='PROBING')
+        analyzer['cables_band']=m.newMap()
         return analyzer
     except Exception as exp:
         error.reraise(exp, 'model:newAnalyzer')
@@ -93,6 +95,8 @@ def add_landing_point(analyzer,landing_point):
     m.put(analyzer['landing_points_info'],landing_point['landing_point_id'],landing_point)
 
 def add_csv_connection(analyzer, connection):
+    cable_band={'cable_name':connection['cable_name'],'band_width':connection['capacityTBPS']}
+    m.put(analyzer['cables_band'],connection['cable_name'],cable_band)
     landing_id1=connection['origin']
     landing_id2=connection['destination']
     cable_name=connection['cable_name']
