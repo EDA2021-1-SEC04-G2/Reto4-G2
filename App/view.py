@@ -45,21 +45,50 @@ def printMenu():
     print("5- Identificar estructura crítica")
     print("6- Impacto de un Landing Point dañado")
 
+def print_results_req1(ans):
+    print('---RESULTADOS REQ. 1---')
+    print('El número de componentes conectados es: ' + str(ans[0]))
+    if ans[1]:
+        x='SI'
+    else:
+        x='NO'
+    print('Los dos landing points',x,'están en el mismo cluster')
+
+
+def print_results_req2(ans):
+    print('---RESULTADOS REQ. 2---')
+    print('Los landing points que más cables conectan son: ')
+    print('\n')
+    i=1
+    while i<=10:
+        entry=lt.getElement(ans,i)
+        print('Nombre:',entry[0],', País:',entry[1],', Identificador:',entry[2],' conecta',entry[3],'cables')
+        i+=1
 
 def print_results_req3(ans,pais1,pais2):
     print('---RESULTADOS REQ. 3---')
     if ans[0] is None:
         print('No hay camino entre',pais1,'y',pais2)
     else:
-        print('El camino más corto entre',pais1,'y',pais2,'tiene',round(ans[1],2),'km','y es el siguiente: ')
+        print('El camino más corto entre',pais1,'y',pais2,'tiene una distancia total de',
+               round(ans[1],2),'km','y es el siguiente: ')
         for entry in lt.iterator(ans[0]):
             print(entry[0],'-',entry[1],'con distancia',round(entry[2],2),'km')
 
-def print_results_req2(ans):
-    i=1
-    while i<=10:
-        print(lt.getElement(ans,i))
-        i+=1
+def print_results_req4(ans):
+    print('---RESULTADOS REQ. 4---')
+    print('En el MST hay un total de',ans[0],'vertices')
+    print('La longitud total del MST es',ans[1],'km')
+    print('La conexión más corta en el MST es',ans[2][0],'-',ans[2][1],'con longitud',ans[2][2],'km')
+    print('La conexión más larga en el MST es',ans[3][0],'-',ans[3][1],'con longitud',ans[3][2],'km')
+
+def print_results_req5(ans,landing):
+    print('---RESULTADOS REQ. 5---')
+    print('Si fallara el landing point',landing,'se verían afectados',ans[0],'paises (incluyendo el local)')
+    print('Los países afectados son: ')
+    for entry in lt.iterator(ans[1]):
+        print('El país',entry[0],'y está a una distancia de',entry[1],'km del landing point de',landing)
+
 
 
 analyzer = None
@@ -83,25 +112,30 @@ while True:
         print('Numero de paises: ',numcountries)
         print('Numero de landing_points: ',numlanding)
     elif int(inputs[0]) == 2:
-        landing1=input('Landing 1: ')
-        landing2=input('Landing 2: ')
+        landing1=input('Landing point 1: ')
+        landing2=input('Landing point 2: ')
         ans=controller.connected_components(analyzer,landing1,landing2)
-        print('El número de componentes conectados es: ' +
-          str(ans[0]))
-        print('Los dos vertices están conectados',ans[1])
+        print_results_req1(ans[0])
+        print(ans[1],'[ms]',ans[2],'[kb]')
     elif int(inputs[0]) == 3:
         ans=controller.critical_landing_points(analyzer)
-        print_results_req2(ans)
+        print_results_req2(ans[0])
+        print(ans[1],'[ms]',ans[2],'[kb]')
     elif int(inputs[0]) == 4:
         pais1=input('País de origen: ' )
         pais2=input('País destino: ' )
         ans=controller.minimum_path(analyzer,pais1,pais2)
-        print_results_req3(ans,pais1,pais2)
+        print_results_req3(ans[0],pais1,pais2)
+        print(ans[1],'[ms]',ans[2],'[kb]')
     elif int(inputs[0]) == 5:
-        model.MST(analyzer)
+        ans=controller.MST(analyzer)
+        print_results_req4(ans[0])
+        print(ans[1],'[ms]',ans[2],'[kb]')
     elif int(inputs[0]) == 6:
-        landing_name=input('landing point: ')
-        model.req5(analyzer,landing_name)
+        landing_name=input('Landing point: ')
+        ans=controller.countries_to_landing_point(analyzer,landing_name)
+        print_results_req5(ans[0],landing_name)
+        print(ans[1],'[ms]',ans[2],'[kb]')
     else:
         sys.exit(0)
 sys.exit(0)

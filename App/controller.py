@@ -22,6 +22,8 @@
 
 import config as cf
 import model
+import time
+import tracemalloc
 import csv
 
 
@@ -67,17 +69,6 @@ def load_landing_points(analyzer):
         model.add_landing_point(analyzer, landing_point)
     return analyzer
 
-"""
-El controlador se encarga de mediar entre la vista y el modelo.
-"""
-
-# Inicialización del Catálogo de libros
-
-# Funciones para la carga de datos
-
-# Funciones de ordenamiento
-
-# Funciones de consulta sobre el catálogo
 def total_vertices(analyzer):
     """
     Total de paradas de autobus
@@ -97,19 +88,144 @@ def total_countries(analyzer):
 def total_landing_points(analyzer):
     return model.total_landing_points(analyzer)
 
+#REQUERIMIENTOS
 
 def connected_components(analyzer,landing_name1,landing_name2):
-    """
-    Numero de componentes fuertemente conectados
-    """
+                   
+    ans = None
+    delta_time = -1.0
+    delta_memory = -1.0
+
+    tracemalloc.start()
+    start_time = getTime()
+    start_memory = getMemory()
 
     ans = model.connected_components(analyzer,landing_name1,landing_name2)
 
+    stop_memory = getMemory()
+    stop_time = getTime()
+    tracemalloc.stop()
 
-    return ans
-
-def minimum_path(analyzer, verta, vertb):
-    return model.minimum_path(analyzer, verta, vertb)
+    delta_time = stop_time - start_time
+    delta_memory = deltaMemory(start_memory, stop_memory)
+    
+    return ans,delta_time,delta_memory
 
 def critical_landing_points(analyzer):
-    return model.critical_landing_points(analyzer)
+               
+    ans = None
+    delta_time = -1.0
+    delta_memory = -1.0
+
+    tracemalloc.start()
+    start_time = getTime()
+    start_memory = getMemory()
+
+    ans=model.critical_landing_points(analyzer)
+
+    stop_memory = getMemory()
+    stop_time = getTime()
+    tracemalloc.stop()
+
+    delta_time = stop_time - start_time
+    delta_memory = deltaMemory(start_memory, stop_memory)
+    
+    return ans,delta_time,delta_memory
+
+def minimum_path(analyzer, verta, vertb):
+           
+    ans = None
+    delta_time = -1.0
+    delta_memory = -1.0
+
+    tracemalloc.start()
+    start_time = getTime()
+    start_memory = getMemory()
+
+    ans=model.minimum_path(analyzer, verta, vertb)
+
+    stop_memory = getMemory()
+    stop_time = getTime()
+    tracemalloc.stop()
+
+    delta_time = stop_time - start_time
+    delta_memory = deltaMemory(start_memory, stop_memory)
+    
+    return ans,delta_time,delta_memory
+
+def MST(analyzer):
+        
+    ans = None
+    delta_time = -1.0
+    delta_memory = -1.0
+
+    tracemalloc.start()
+    start_time = getTime()
+    start_memory = getMemory()
+
+    ans=model.MST(analyzer)
+
+    stop_memory = getMemory()
+    stop_time = getTime()
+    tracemalloc.stop()
+
+    delta_time = stop_time - start_time
+    delta_memory = deltaMemory(start_memory, stop_memory)
+    
+    return ans,delta_time,delta_memory
+
+def countries_to_landing_point(analyzer,landing_name):
+    
+    ans = None
+    delta_time = -1.0
+    delta_memory = -1.0
+
+    tracemalloc.start()
+    start_time = getTime()
+    start_memory = getMemory()
+
+    ans=model.countries_to_landing_point(analyzer,landing_name)
+
+    stop_memory = getMemory()
+    stop_time = getTime()
+    tracemalloc.stop()
+
+    delta_time = stop_time - start_time
+    delta_memory = deltaMemory(start_memory, stop_memory)
+    
+    return ans,delta_time,delta_memory
+
+
+# ======================================
+# Funciones para medir tiempo y memoria
+# ======================================
+
+
+def getTime():
+    """
+    devuelve el instante tiempo de procesamiento en milisegundos
+    """
+    return float(time.perf_counter()*1000)
+
+
+def getMemory():
+    """
+    toma una muestra de la memoria alocada en instante de tiempo
+    """
+    return tracemalloc.take_snapshot()
+
+
+def deltaMemory(start_memory, stop_memory):
+    """
+    calcula la diferencia en memoria alocada del programa entre dos
+    instantes de tiempo y devuelve el resultado en bytes (ej.: 2100.0 B)
+    """
+    memory_diff = stop_memory.compare_to(start_memory, "filename")
+    delta_memory = 0.0
+
+    # suma de las diferencias en uso de memoria
+    for stat in memory_diff:
+        delta_memory = delta_memory + stat.size_diff
+    # de Byte -> kByte
+    delta_memory = delta_memory/1024.0
+    return delta_memory

@@ -306,11 +306,12 @@ def MST(analyzer):
                 maxcon[2]=distance
                 maxcon[0]=landing_name1
                 maxcon[1]=landing_name2
-    ans=peso,mincon,maxcon
-    print(ans)
+    numvertices=gr.numVertices(analyzer['connections'])
+    ans=numvertices,peso,mincon,maxcon
     return ans
 
-def req5(analyzer,landing_name):
+def countries_to_landing_point(analyzer,landing_name):
+    #req 5
     landing_id=name_to_id(analyzer,landing_name)
     country_origin=m.get(analyzer['landing_points_info'],landing_id)['value']['country']
     lstcables=m.get(analyzer['landing_points_cables'],landing_id)['value']
@@ -332,7 +333,8 @@ def req5(analyzer,landing_name):
                 if distance<entry2[1]:
                     m.put(mapa,country,entry)
     lista=merge.sort(m.valueSet(mapa),compare_entry_req5)
-    return lista
+    numcountries=lt.size(lista)
+    return numcountries, lista
 
 
 
