@@ -64,7 +64,6 @@ def load_landing_points(analyzer):
     eventsfile = cf.data_dir + 'Data/landing_points.csv'
     input_file = csv.DictReader(open(eventsfile, encoding='utf-8-sig'))
     for landing_point in input_file:
-        landing_point['Sub']=True
         model.add_landing_point(analyzer, landing_point)
     return analyzer
 
@@ -108,3 +107,9 @@ def connected_components(analyzer,landing_name1,landing_name2):
 
 
     return ans
+
+def minimum_path(analyzer, verta, vertb):
+    return model.minimum_path(analyzer, verta, vertb)
+
+def critical_landing_points(analyzer):
+    return model.critical_landing_points(analyzer)

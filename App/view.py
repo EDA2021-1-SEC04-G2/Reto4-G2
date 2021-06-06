@@ -24,6 +24,7 @@ import config as cf
 import sys
 import controller
 import model
+from DISClib.ADT import map as m
 from DISClib.ADT import list as lt
 assert cf
 
@@ -44,6 +45,21 @@ def printMenu():
     print("5- Identificar estructura crítica")
     print("6- Impacto de un Landing Point dañado")
 
+
+def print_results_req3(ans,pais1,pais2):
+    print('---RESULTADOS REQ. 3---')
+    if ans[0] is None:
+        print('No hay camino entre',pais1,'y',pais2)
+    else:
+        print('El camino más corto entre',pais1,'y',pais2,'tiene',round(ans[1],2),'km','y es el siguiente: ')
+        for entry in lt.iterator(ans[0]):
+            print(entry[0],'-',entry[1],'con distancia',round(entry[2],2),'km')
+
+def print_results_req2(ans):
+    i=1
+    while i<=10:
+        print(lt.getElement(ans,i))
+        i+=1
 
 
 analyzer = None
@@ -74,12 +90,18 @@ while True:
           str(ans[0]))
         print('Los dos vertices están conectados',ans[1])
     elif int(inputs[0]) == 3:
-        pass
+        ans=controller.critical_landing_points(analyzer)
+        print_results_req2(ans)
     elif int(inputs[0]) == 4:
-        pass
+        pais1=input('País de origen: ' )
+        pais2=input('País destino: ' )
+        ans=controller.minimum_path(analyzer,pais1,pais2)
+        print_results_req3(ans,pais1,pais2)
     elif int(inputs[0]) == 5:
-        pass
-
+        model.MST(analyzer)
+    elif int(inputs[0]) == 6:
+        landing_name=input('landing point: ')
+        model.req5(analyzer,landing_name)
     else:
         sys.exit(0)
 sys.exit(0)
