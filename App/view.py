@@ -23,6 +23,7 @@
 import config as cf
 import sys
 import controller
+import model
 from DISClib.ADT import list as lt
 assert cf
 
@@ -43,10 +44,6 @@ def printMenu():
     print("5- Identificar estructura crítica")
     print("6- Impacto de un Landing Point dañado")
 
-
-
-    
- 
 
 
 analyzer = None
@@ -70,9 +67,9 @@ while True:
         print('Numero de paises: ',numcountries)
         print('Numero de landing_points: ',numlanding)
     elif int(inputs[0]) == 2:
-        verta=input('vertice a')
-        vertb=input('vertice b')
-        ans=controller.connected_components(analyzer,verta,vertb)
+        landing1=input('Landing 1: ')
+        landing2=input('Landing 2: ')
+        ans=controller.connected_components(analyzer,landing1,landing2)
         print('El número de componentes conectados es: ' +
           str(ans[0]))
         print('Los dos vertices están conectados',ans[1])
@@ -86,3 +83,4 @@ while True:
     else:
         sys.exit(0)
 sys.exit(0)
+

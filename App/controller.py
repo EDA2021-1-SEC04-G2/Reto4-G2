@@ -48,7 +48,8 @@ def load_connections(analyzer):
     eventsfile = cf.data_dir + 'Data/connections.csv'
     input_file = csv.DictReader(open(eventsfile, encoding='utf-8-sig'))
     for connection in input_file:
-        model.add_connection(analyzer, connection)
+        model.add_csv_connection(analyzer, connection)
+    model.add_capitals(analyzer)
     model.add_landing_points_connections(analyzer)
     return analyzer
 
@@ -63,6 +64,7 @@ def load_landing_points(analyzer):
     eventsfile = cf.data_dir + 'Data/landing_points.csv'
     input_file = csv.DictReader(open(eventsfile, encoding='utf-8-sig'))
     for landing_point in input_file:
+        landing_point['Sub']=True
         model.add_landing_point(analyzer, landing_point)
     return analyzer
 
@@ -97,12 +99,12 @@ def total_landing_points(analyzer):
     return model.total_landing_points(analyzer)
 
 
-def connected_components(analyzer,verta,vertb):
+def connected_components(analyzer,landing_name1,landing_name2):
     """
     Numero de componentes fuertemente conectados
     """
 
-    ans = model.connected_components(analyzer,verta,vertb)
+    ans = model.connected_components(analyzer,landing_name1,landing_name2)
 
 
     return ans
